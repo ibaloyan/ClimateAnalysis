@@ -11,7 +11,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, desc
 # Maintain the same connection per thread
-# from sqlalchemy.pool import SingletonThreadPool
+###from sqlalchemy.pool import SingletonThreadPool
 
 from flask import Flask, jsonify
 
@@ -20,7 +20,7 @@ from flask import Flask, jsonify
 # Database Setup
 #################################################
 ### engine = create_engine("sqlite:///Resources/hawaii.sqlite")
-### engine = create_engine('sqlite:///Resources/hawaii.sqlite', poolclass=SingletonThreadPool, pool_sie=50)  
+###engine = create_engine('sqlite:///Resources/hawaii.sqlite', poolclass=SingletonThreadPool, pool_size=50)  
 engine = create_engine('sqlite:///Resources/hawaii.sqlite', connect_args={'check_same_thread': False})
 
 # reflect an existing database into a new model
@@ -126,9 +126,9 @@ def daily_normals(start_date):
     for tstats_record in daily_normals_data:
         (min_tobs, max_tobs, avg_tobs) = tstats_record
         daily_normals_dict = {}
-        daily_normals_dict["min"] = min_tobs 
-        daily_normals_dict["max"] = max_tobs 
         daily_normals_dict["avg"] = avg_tobs 
+        daily_normals_dict["max"] = max_tobs 
+        daily_normals_dict["min"] = min_tobs 
         all_daily_normals.append(daily_normals_dict)
 
     # Return a JSON representation of the dictionary
@@ -145,10 +145,20 @@ def calc_temps(start_date, end_date):
         filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
 
     # Convert list of tuples into normal list
-    vacation_stats = list(np.ravel(vacation_daily_normals))
+    ###vacation_stats = list(np.ravel(vacation_daily_normals))
+
+    # Create a dictionary from the row data and append to a list of all daily normals
+    all_vac_daily_normals = []
+    for vac_stats in vacation_daily_normals:
+        (min_tmp, max_tmp, avg_tmp) = vac_stats
+        daily_vac_dict = {}
+        daily_vac_dict["avg"] = avg_tmp 
+        daily_vac_dict["max"] = max_tmp 
+        daily_vac_dict["min"] = min_tmp 
+        all_vac_daily_normals.append(daily_vac_dict)
 
     # Return a JSON representation of the list
-    return jsonify(vacation_stats)
+    return jsonify(all_vac_daily_normals)
 
 #print(calc_temps('2017-07-15', '2017-07-22'))
 
